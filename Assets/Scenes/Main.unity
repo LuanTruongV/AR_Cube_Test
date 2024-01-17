@@ -159,10 +159,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   sensitivity: 1
-  ratioScale: 0.002
+  ratioScale: 0.01
   minScale: 0.05
-  multiRatioScale: 1
-  rotationMultiRatio: 0.1
+  multiScaleRatio: 0.5
+  multiRotationRatio: 5
 --- !u!114 &513788328
 MonoBehaviour:
   m_ObjectHideFlags: 0

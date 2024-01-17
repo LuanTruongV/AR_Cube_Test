@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace _Scripts.Controller
 {
@@ -22,12 +23,12 @@ namespace _Scripts.Controller
 
         [SerializeField] private Camera mainCamera;
         [SerializeField] private LayerMask cubeLayer;
-        [Header("Stats")] [SerializeField] private float sensitivity = 1f;
-        [SerializeField] private float ratioScale = 0.01f;
+        [Header("Stats")] 
+        [SerializeField] private float sensitivity = 1f;
+        [SerializeField] private float ratioScale = 0.1f;
         [SerializeField] private float minScale = 0.05f;
-        [SerializeField] private float multiRatioScale = 1f;
-        [SerializeField] private float rotationMultiRatio = 0.1f;
-        private float _previous;
+        [SerializeField] private float multiScaleRatio = 0.1f;
+        [SerializeField] private float multiRotationRatio = 5f;
         private RaycastHit _hit;
         private Vector3 _faceVector;
 
@@ -52,15 +53,24 @@ namespace _Scripts.Controller
             parent.position = mainCamera.ScreenToWorldPoint(screenPoint);
         }
 
-        public void ChangePivot()
+        public void ChangePivotToScaleFace()
+        {
+            float angle = _model.parent.rotation.eulerAngles.y;
+            Vector3 local = Quaternion.AngleAxis(-angle, Vector3.up) * _faceVector;
+            ChangePivot((local/2)*_model.localScale.x);
+        }
+
+        public void BackPivot()
+        {
+            ChangePivot(new Vector3(0,0.5f,0));
+        }
+
+        private void ChangePivot(Vector3 newPivot)
         {
             Vector3 _position = _model.position;
             Transform parent = _model.parent;
-            float angle = parent.rotation.eulerAngles.y;
-            Vector3 local = Quaternion.AngleAxis(-angle, Vector3.up) * _faceVector;
-            _model.localPosition = (local / 2) * _model.localScale.x;
+            _model.localPosition=newPivot;
             _model.DetachChildren();
-
             parent.position += (_position - _model.position);
             _model.parent = parent;
         }
@@ -74,7 +84,6 @@ namespace _Scripts.Controller
         {
             float angle = _model.parent.rotation.eulerAngles.y;
             Vector3 local = Quaternion.AngleAxis(-angle, Vector3.up) * _faceVector;
-            Debug.Log(local);
             Vector3 scale = local.y != 0
                 ? local * delta.y
                 : local * delta.x;
@@ -94,38 +103,22 @@ namespace _Scripts.Controller
             {
                 
                 int direction = Vector3.Angle(mainCamera.transform.forward, _faceVector) > 0 ? 1 : -1;
-                //Debug.Log(direction+"and"+scale);
                 _model.parent.localScale += scale * (direction * ratioScale);
             }
         }
 
-        public void ScaleMulti(Vector2 firstPos, Vector2 secondPos)
+        public void ScaleMulti(float disDiff)
         {
-            float distanceMulti = Vector2.Distance(firstPos, secondPos);
-            float check = Mathf.Abs(distanceMulti / _previous - 1);
-            if (_previous != 0)
-            {
-                float minScaleStep = 0.02f;
-                if (check > minScaleStep)
-                {
-                    _model.localScale *= ((distanceMulti / _previous) * multiRatioScale);
-                }
-            }
-
-            _previous = distanceMulti;
+            Vector3 newScale = _model.transform.localScale + Vector3.one * (Mathf.Sign(disDiff) * multiScaleRatio);
+            
+            float speedLerp = 0.05f;
+            _model.transform.localScale = Vector3.Lerp(_model.transform.localScale, newScale, speedLerp);
+        }
+        public void RotateMulti(float angle)
+        {
+            var parent = _model.parent;
+            parent.transform.rotation=Quaternion.Euler(0,parent.transform.rotation.eulerAngles.y-Mathf.Sign(angle)*multiRotationRatio,0);
         }
 
-        public void CanclePrevious()
-        {
-            _previous = 0;
-        }
-
-        public void RotateMulti(Vector2 firstDelta, Vector2 secondDelta, Vector2 firstPos, Vector2 secondPos)
-        {
-            Vector2 directionVector = firstPos.y > secondPos.y ? firstDelta : secondDelta;
-            float direction = directionVector.x > 0 ? 1 : -1;
-            float rotateFloat = direction * (firstDelta.magnitude + secondDelta.magnitude);
-            _model.parent.Rotate(Vector3.up, rotateFloat * rotationMultiRatio);
-        }
     }
 }

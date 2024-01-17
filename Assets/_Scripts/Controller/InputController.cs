@@ -6,6 +6,7 @@ namespace _Scripts.Controller
 {
     public class InputController : MonoBehaviour
     {
+        
         [SerializeField] private ModelController _modelController;
         private MobileInput _mobileInput;
         private InputAction _tap;
@@ -13,12 +14,14 @@ namespace _Scripts.Controller
         private InputAction _touchDelta;
         private InputAction _secondTouch;
         private InputAction _firstPosition;
-        private InputAction _firstDelta;
         private InputAction _secondPosition;
-        private InputAction _secondDelta;
         private bool _isHold;
         private Vector2 _touchPositionVector;
-        private bool _isMulti =false;
+        private bool _isMulti;
+        private float _touchDistance;
+        private Vector2 _touchPositionDiff;
+        private float _minScaleInput = 25f;
+        private float _minRotationInput = 2f;
         private void Awake()
         {
             _mobileInput = new MobileInput();
@@ -39,10 +42,6 @@ namespace _Scripts.Controller
             _touchDelta.Enable();
             _secondTouch=_mobileInput.Touch.SecondTouch;
             _secondTouch.Enable();
-            _firstDelta = _mobileInput.Touch.FirstDelta;
-            _firstDelta.Enable();
-            _secondDelta = _mobileInput.Touch.SecondDelta;
-            _secondDelta.Enable();
             _firstPosition = _mobileInput.Touch.FirstPostion;
             _firstPosition.Enable();
             _secondPosition = _mobileInput.Touch.SecondPostion;
@@ -63,8 +62,6 @@ namespace _Scripts.Controller
             _touchPosition.Disable();
             _touchDelta.Disable();
             _secondTouch.Disable();
-            _firstDelta.Disable();
-            _secondDelta.Disable();
             _firstPosition.Disable();
             _secondPosition.Disable();
             _tap.performed -= HandheldTapPerformed;
@@ -88,55 +85,57 @@ namespace _Scripts.Controller
         {
             _isHold = false;
             _modelController.UnScaleFace();
+            _modelController.BackPivot();
         }
         private void HandleSecondPerformed(InputAction.CallbackContext obj)
         {
             _isMulti = true;
+            _isHold = false;
+            Vector2 firstPos = _firstPosition.ReadValue<Vector2>();
+            Vector2 secondPos = _secondPosition.ReadValue<Vector2>();
+            _touchPositionDiff = secondPos - firstPos;
+            _touchDistance = Vector2.Distance(firstPos, secondPos);
             StartCoroutine(Multi());
         }
         private void HandleSecondCanceled(InputAction.CallbackContext obj)
         {
             _isMulti = false;
-            _modelController.CanclePrevious();
         }
         private IEnumerator Multi()
         {
         
             while (_isMulti)
             {
-                Vector2 firstDelta = _firstDelta.ReadValue<Vector2>();
-                Vector2 secondDelta = _secondDelta.ReadValue<Vector2>();
                 Vector2 firstPos = _firstPosition.ReadValue<Vector2>();
                 Vector2 secondPos = _secondPosition.ReadValue<Vector2>();
-                if (CheckScaleMultiInput(firstDelta, secondDelta))
-                {
-                    _modelController.ScaleMulti(firstPos,secondPos);
-                }
-                else
-                {
-                    if (CheckRotationMultiInput(firstDelta, secondDelta))
-                    {
-                        _modelController.RotateMulti(firstDelta,secondDelta,firstPos,secondPos);
-                    }
-                }
-
+                Vector2 currentTouchPositionDiff = secondPos - firstPos;
+                float currentTouchDistance = Vector2.Distance(firstPos, secondPos);
+                float distanceDiff = currentTouchDistance - _touchDistance;
+                ScaleObject(distanceDiff);
+                RotationObject(_touchPositionDiff,currentTouchPositionDiff);
+                _touchDistance = currentTouchDistance;
+                _touchPositionDiff = currentTouchPositionDiff;
                 yield return null;
             }
         }
-        
 
-        
-
-        private bool CheckScaleMultiInput(Vector2 first,Vector2 second)
+        private void ScaleObject(float distanceDiff)
         {
-            return first.x * first.y >= 0 && second.x * second.y >= 0;
+            if (Mathf.Abs(distanceDiff) > _minScaleInput)
+            {
+                _modelController.ScaleMulti(distanceDiff);
+            }
         }
 
-        private bool CheckRotationMultiInput(Vector2 first, Vector2 second)
+        private void RotationObject(Vector2 touchPosDiff, Vector2 currentPosDiff)
         {
-            return first.x * second.x < 0;
+            float angle = Vector2.SignedAngle(touchPosDiff, currentPosDiff);
+            if (Mathf.Abs(angle) > _minRotationInput)
+            {
+                _modelController.RotateMulti(angle);
+                        
+            }
         }
-        
         private IEnumerator CheckHold(float time)
         {
             while (_isHold && Time.time - time < 0.5f)
@@ -157,7 +156,7 @@ namespace _Scripts.Controller
 
         private IEnumerator HandleHolding()
         {
-             _modelController.ChangePivot();
+             _modelController.ChangePivotToScaleFace();
             while (_isHold)
             {
                 yield return new WaitUntil(() => !_isMulti);
