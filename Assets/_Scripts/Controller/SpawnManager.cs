@@ -27,7 +27,9 @@ namespace _Scripts.Controller
                     TrackableType.PlaneWithinPolygon))
             {
                 var hit = _hits[0].pose;
+# if !UNITY_EDITOR
                 TryAddAnchor(_hits[0]);
+# endif
                 InstantiateModelInHit(hit);
             }
         }

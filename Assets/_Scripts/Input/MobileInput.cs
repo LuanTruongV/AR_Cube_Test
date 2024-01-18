@@ -73,27 +73,9 @@ public partial class @MobileInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""SecondDelta"",
-                    ""type"": ""Value"",
-                    ""id"": ""f06608ea-c62e-4bcc-bb9f-be6b836a9010"",
-                    ""expectedControlType"": ""Vector2"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
-                },
-                {
                     ""name"": ""FirstPostion"",
                     ""type"": ""Value"",
                     ""id"": ""dc542ede-9246-4730-8f3f-464d243f7595"",
-                    ""expectedControlType"": ""Vector2"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
-                },
-                {
-                    ""name"": ""FirstDelta"",
-                    ""type"": ""Value"",
-                    ""id"": ""76768ecf-9e74-428b-bf71-b0e744c7a309"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -158,34 +140,12 @@ public partial class @MobileInput: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""154920ba-4e6d-460c-aa2d-1e0c613aa10b"",
-                    ""path"": ""<Touchscreen>/touch1/delta"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""SecondDelta"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""19d6d4de-71e2-4255-9300-8b5c579cdbef"",
                     ""path"": ""<Touchscreen>/touch0/position"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""FirstPostion"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""e6333ec7-fca4-4755-8247-ad48bfd6a9d0"",
-                    ""path"": ""<Touchscreen>/touch0/delta"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""FirstDelta"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -201,9 +161,7 @@ public partial class @MobileInput: IInputActionCollection2, IDisposable
         m_Touch_TouchPostion = m_Touch.FindAction("TouchPostion", throwIfNotFound: true);
         m_Touch_TouchDelta = m_Touch.FindAction("TouchDelta", throwIfNotFound: true);
         m_Touch_SecondPostion = m_Touch.FindAction("SecondPostion", throwIfNotFound: true);
-        m_Touch_SecondDelta = m_Touch.FindAction("SecondDelta", throwIfNotFound: true);
         m_Touch_FirstPostion = m_Touch.FindAction("FirstPostion", throwIfNotFound: true);
-        m_Touch_FirstDelta = m_Touch.FindAction("FirstDelta", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -270,9 +228,7 @@ public partial class @MobileInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Touch_TouchPostion;
     private readonly InputAction m_Touch_TouchDelta;
     private readonly InputAction m_Touch_SecondPostion;
-    private readonly InputAction m_Touch_SecondDelta;
     private readonly InputAction m_Touch_FirstPostion;
-    private readonly InputAction m_Touch_FirstDelta;
     public struct TouchActions
     {
         private @MobileInput m_Wrapper;
@@ -282,9 +238,7 @@ public partial class @MobileInput: IInputActionCollection2, IDisposable
         public InputAction @TouchPostion => m_Wrapper.m_Touch_TouchPostion;
         public InputAction @TouchDelta => m_Wrapper.m_Touch_TouchDelta;
         public InputAction @SecondPostion => m_Wrapper.m_Touch_SecondPostion;
-        public InputAction @SecondDelta => m_Wrapper.m_Touch_SecondDelta;
         public InputAction @FirstPostion => m_Wrapper.m_Touch_FirstPostion;
-        public InputAction @FirstDelta => m_Wrapper.m_Touch_FirstDelta;
         public InputActionMap Get() { return m_Wrapper.m_Touch; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -309,15 +263,9 @@ public partial class @MobileInput: IInputActionCollection2, IDisposable
             @SecondPostion.started += instance.OnSecondPostion;
             @SecondPostion.performed += instance.OnSecondPostion;
             @SecondPostion.canceled += instance.OnSecondPostion;
-            @SecondDelta.started += instance.OnSecondDelta;
-            @SecondDelta.performed += instance.OnSecondDelta;
-            @SecondDelta.canceled += instance.OnSecondDelta;
             @FirstPostion.started += instance.OnFirstPostion;
             @FirstPostion.performed += instance.OnFirstPostion;
             @FirstPostion.canceled += instance.OnFirstPostion;
-            @FirstDelta.started += instance.OnFirstDelta;
-            @FirstDelta.performed += instance.OnFirstDelta;
-            @FirstDelta.canceled += instance.OnFirstDelta;
         }
 
         private void UnregisterCallbacks(ITouchActions instance)
@@ -337,15 +285,9 @@ public partial class @MobileInput: IInputActionCollection2, IDisposable
             @SecondPostion.started -= instance.OnSecondPostion;
             @SecondPostion.performed -= instance.OnSecondPostion;
             @SecondPostion.canceled -= instance.OnSecondPostion;
-            @SecondDelta.started -= instance.OnSecondDelta;
-            @SecondDelta.performed -= instance.OnSecondDelta;
-            @SecondDelta.canceled -= instance.OnSecondDelta;
             @FirstPostion.started -= instance.OnFirstPostion;
             @FirstPostion.performed -= instance.OnFirstPostion;
             @FirstPostion.canceled -= instance.OnFirstPostion;
-            @FirstDelta.started -= instance.OnFirstDelta;
-            @FirstDelta.performed -= instance.OnFirstDelta;
-            @FirstDelta.canceled -= instance.OnFirstDelta;
         }
 
         public void RemoveCallbacks(ITouchActions instance)
@@ -370,8 +312,6 @@ public partial class @MobileInput: IInputActionCollection2, IDisposable
         void OnTouchPostion(InputAction.CallbackContext context);
         void OnTouchDelta(InputAction.CallbackContext context);
         void OnSecondPostion(InputAction.CallbackContext context);
-        void OnSecondDelta(InputAction.CallbackContext context);
         void OnFirstPostion(InputAction.CallbackContext context);
-        void OnFirstDelta(InputAction.CallbackContext context);
     }
 }
