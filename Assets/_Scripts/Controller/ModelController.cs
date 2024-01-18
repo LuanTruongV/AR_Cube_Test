@@ -8,6 +8,7 @@ namespace _Scripts.Controller
     public class ModelController : MonoBehaviour
     {
         [Header("Object")] [SerializeField] private Transform _model;
+
         public Transform Model
         {
             set
@@ -16,15 +17,13 @@ namespace _Scripts.Controller
                 {
                     _model = value;
                 }
-                
             }
         }
 
 
         [SerializeField] private Camera mainCamera;
         [SerializeField] private LayerMask cubeLayer;
-        [Header("Stats")] 
-        [SerializeField] private float sensitivity = 1f;
+        [Header("Stats")] [SerializeField] private float sensitivity = 1f;
         [SerializeField] private float ratioScale = 0.1f;
         [SerializeField] private float minScale = 0.05f;
         [SerializeField] private float multiScaleRatio = 0.1f;
@@ -57,19 +56,19 @@ namespace _Scripts.Controller
         {
             float angle = _model.parent.rotation.eulerAngles.y;
             Vector3 local = Quaternion.AngleAxis(-angle, Vector3.up) * _faceVector;
-            ChangePivot((local/2)*_model.localScale.x);
+            ChangePivot((local / 2) * _model.localScale.x);
         }
 
         public void BackPivot()
         {
-            ChangePivot(new Vector3(0,0.5f,0));
+            ChangePivot(new Vector3(0, 0.5f, 0));
         }
 
         private void ChangePivot(Vector3 newPivot)
         {
             Vector3 _position = _model.position;
             Transform parent = _model.parent;
-            _model.localPosition=newPivot;
+            _model.localPosition = newPivot;
             _model.DetachChildren();
             parent.position += (_position - _model.position);
             _model.parent = parent;
@@ -84,41 +83,52 @@ namespace _Scripts.Controller
         {
             float angle = _model.parent.rotation.eulerAngles.y;
             Vector3 local = Quaternion.AngleAxis(-angle, Vector3.up) * _faceVector;
+            var mainCameraTransform = mainCamera.transform;
+            int directionXZ =
+                Vector3.SignedAngle(mainCameraTransform.forward, _faceVector, mainCameraTransform.up) > 0 ? 1 : -1;
+            int directionY =
+                Vector3.SignedAngle(mainCameraTransform.forward, _faceVector, mainCameraTransform.right) > 0 ? -1 : 1;
+            PositiveVector3(ref local);
             Vector3 scale = local.y != 0
-                ? local * delta.y
-                : local * delta.x;
+                ? local * (delta.y * directionY)
+                : local * (delta.x * directionXZ);
+            scale *= ratioScale;
+            if (CheckScale(_model.parent.localScale, scale, minScale))
+            {
+                _model.parent.localScale += scale;
+            }
+        }
+        private bool CheckScale(Vector3 localScale, Vector3 scale, float min)
+        {
+            Vector3 newLocalScale = localScale + scale;
+            if (newLocalScale.x < min || newLocalScale.y < min || newLocalScale.z < min)
+            {
+                return false;
+            }
 
-            float scaleFloat, parentFloat;
-            if (scale.x != 0)
+            return true;
+        }
+        private void PositiveVector3(ref Vector3 vector)
+        {
+            if (vector.x < 0 || vector.y < 0 || vector.z < 0)
             {
-                scaleFloat = scale.x;
-                parentFloat = _model.parent.localScale.x;
-            }
-            else
-            {
-                scaleFloat = scale.y != 0 ? scale.y : scale.z;
-                parentFloat = scale.y != 0 ? _model.parent.localScale.y : _model.parent.localScale.z;
-            }
-            if (parentFloat > minScale || scaleFloat > 0)
-            {
-                
-                int direction = Vector3.Angle(mainCamera.transform.forward, _faceVector) > 0 ? 1 : -1;
-                _model.parent.localScale += scale * (direction * ratioScale);
+                vector = -vector;
             }
         }
 
         public void ScaleMulti(float disDiff)
         {
             Vector3 newScale = _model.transform.localScale + Vector3.one * (Mathf.Sign(disDiff) * multiScaleRatio);
-            
+
             float speedLerp = 0.05f;
             _model.transform.localScale = Vector3.Lerp(_model.transform.localScale, newScale, speedLerp);
         }
+
         public void RotateMulti(float angle)
         {
             var parent = _model.parent;
-            parent.transform.rotation=Quaternion.Euler(0,parent.transform.rotation.eulerAngles.y-Mathf.Sign(angle)*multiRotationRatio,0);
+            parent.transform.rotation = Quaternion.Euler(0,
+                parent.transform.rotation.eulerAngles.y - Mathf.Sign(angle) * multiRotationRatio, 0);
         }
-
     }
 }
