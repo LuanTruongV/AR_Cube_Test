@@ -12,6 +12,7 @@ namespace _Scripts.Controller
         [SerializeField] private ARPlaneManager arPlaneManager;
         [SerializeField] private ARRaycastManager arRaycastManager;
         [SerializeField] private ModelController modelController;
+        [SerializeField] private ARAnchorManager arAnchorManager;
         private List<ARRaycastHit> _hits = new List<ARRaycastHit>();
         [SerializeField] private GameObject _parent;
 
@@ -26,10 +27,24 @@ namespace _Scripts.Controller
                     TrackableType.PlaneWithinPolygon))
             {
                 var hit = _hits[0].pose;
-                GameObject obj = Instantiate(_parent,hit.position,_parent.transform.rotation);
-                modelController.Model = obj.transform.GetChild(0);
-                arRaycastManager.enabled = false;
-                arPlaneManager.enabled = false;
+                TryAddAnchor(_hits[0]);
+                InstantiateModelInHit(hit);
+            }
+        }
+
+        private void InstantiateModelInHit(Pose hit)
+        {
+            GameObject obj = Instantiate(_parent, hit.position, _parent.transform.rotation);
+            modelController.Model = obj.transform.GetChild(0);
+            arRaycastManager.enabled = false;
+            arPlaneManager.enabled = false;
+        }
+
+        private void TryAddAnchor(ARRaycastHit hit)
+        {
+            if (hit.trackable is ARPlane plane)
+            {
+                arAnchorManager.AttachAnchor(plane, hit.pose);
             }
         }
     }

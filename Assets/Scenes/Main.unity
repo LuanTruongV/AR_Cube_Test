@@ -159,8 +159,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   sensitivity: 1
-  ratioScale: 0.01
-  minScale: 0.05
+  ratioScale: 0.001
+  minScale: 0.1
   multiScaleRatio: 0.5
   multiRotationRatio: 5
 --- !u!114 &513788328
@@ -358,6 +358,7 @@ GameObject:
   - component: {fileID: 742195124}
   - component: {fileID: 742195126}
   - component: {fileID: 742195125}
+  - component: {fileID: 742195127}
   m_Layer: 0
   m_Name: XR Origin
   m_TagString: Untagged
@@ -427,6 +428,7 @@ MonoBehaviour:
   arPlaneManager: {fileID: 742195124}
   arRaycastManager: {fileID: 742195126}
   modelController: {fileID: 513788327}
+  arAnchorManager: {fileID: 742195127}
   _parent: {fileID: 3745461396887703464, guid: caebfb3dfacc4f44d82d2154a6aa27c5, type: 3}
 --- !u!114 &742195126
 MonoBehaviour:
@@ -441,6 +443,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_RaycastPrefab: {fileID: 0}
+--- !u!114 &742195127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 742195121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 728ad7fae8e460a4ba41265c7308d757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AnchorPrefab: {fileID: 0}
 --- !u!1 &1650722058
 GameObject:
   m_ObjectHideFlags: 0
