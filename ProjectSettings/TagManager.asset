@@ -12,6 +12,7 @@ TagManager:
   - Water
   - UI
   - Cube
+  - Axes
   - 
   - 
   - 
@@ -34,8 +35,7 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
+  - XR Simulation
   - 
   m_SortingLayers:
   - name: Default

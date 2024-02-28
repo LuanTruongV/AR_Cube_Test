@@ -22,6 +22,7 @@ namespace _Scripts.Controller
         private Vector2 _touchPositionDiff;
         private float _minScaleInput = 25f;
         private float _minRotationInput = 2f;
+        private bool _isAxesTouch;
         private void Awake()
         {
             _mobileInput = new MobileInput();
@@ -73,9 +74,11 @@ namespace _Scripts.Controller
         {
             _isHold = true;
             _touchPositionVector = _touchPosition.ReadValue<Vector2>();
-            if (_modelController.CheckRaycatModel(_touchPositionVector))
+            
+            if (_modelController.CheckRayModel(_touchPositionVector))
             {
                 StartCoroutine(CheckHold(Time.time));
+                _isAxesTouch = _modelController.CheckAxesMove(_touchPositionVector);
             };
             
             
@@ -84,7 +87,8 @@ namespace _Scripts.Controller
         private void HandleTapCanceled(InputAction.CallbackContext obj)
         {
             _isHold = false;
-            _modelController.UnScaleFace();
+            _isAxesTouch = false;
+            _modelController.BackScaleAndShowAxes();
             _modelController.BackPivot();
         }
         private void HandleSecondPerformed(InputAction.CallbackContext obj)
@@ -144,6 +148,7 @@ namespace _Scripts.Controller
                 if (distanceVector.magnitude > 10f)
                 {
                     _isHold = false;
+                    
                     StartCoroutine(HandleTouchMoving());
                 }
                 yield return null;
@@ -170,7 +175,15 @@ namespace _Scripts.Controller
             while (!_isHold)
             {
                 yield return new WaitUntil(() => !_isMulti);
-                _modelController.Moving(_touchDelta.ReadValue<Vector2>());
+                if (_isAxesTouch)
+                {
+                    _modelController.MoveAxes(_touchDelta.ReadValue<Vector2>());
+                }
+                else
+                {
+                    _modelController.Moving(_touchDelta.ReadValue<Vector2>());
+                }
+                
                 
                 yield return null;
             }

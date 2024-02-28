@@ -27,9 +27,10 @@ namespace _Scripts.Controller
                     TrackableType.PlaneWithinPolygon))
             {
                 var hit = _hits[0].pose;
-# if !UNITY_EDITOR
-                TryAddAnchor(_hits[0]);
-# endif
+#if !UNITY_EDITOR
+                 TryAddAnchor(_hits[0]);
+#endif
+               
                 InstantiateModelInHit(hit);
             }
         }
@@ -37,7 +38,7 @@ namespace _Scripts.Controller
         private void InstantiateModelInHit(Pose hit)
         {
             GameObject obj = Instantiate(_parent, hit.position, _parent.transform.rotation);
-            modelController.Model = obj.transform.GetChild(0);
+            modelController.InitCube(obj.transform.GetChild(0),obj.transform.GetComponentInChildren<Axes>());
             arRaycastManager.enabled = false;
             arPlaneManager.enabled = false;
         }

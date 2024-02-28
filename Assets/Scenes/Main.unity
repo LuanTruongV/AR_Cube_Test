@@ -154,15 +154,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _model: {fileID: 0}
+  _axes: {fileID: 0}
   mainCamera: {fileID: 1952284912}
   cubeLayer:
     serializedVersion: 2
     m_Bits: 64
+  axesLayer:
+    serializedVersion: 2
+    m_Bits: 128
   sensitivity: 1
   ratioScale: 0.001
-  minScale: 0.1
+  minScale: 0.05
   multiScaleRatio: 0.5
   multiRotationRatio: 5
+  ratioAxes: 0.1
 --- !u!114 &513788328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -625,7 +630,6 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
-  m_HasMigratedActions: 1
 --- !u!114 &1952284909
 MonoBehaviour:
   m_ObjectHideFlags: 0
